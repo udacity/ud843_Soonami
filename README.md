@@ -21,6 +21,12 @@ Getting Started
 This sample uses the Gradle build system. To build this project, use the
 "gradlew build" command or use "Import Project" in Android Studio.
 
+## Final
+
+![](http://olrs8j04a.bkt.clouddn.com/17-8-12/34646234.jpg?imageMogr/thumbnail/!40p)
+
+
+
 Support
 -------
 
