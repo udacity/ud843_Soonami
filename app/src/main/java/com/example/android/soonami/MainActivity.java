@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     // Extract out the first feature (which is an earthquake)
                     JSONObject firstFeature = featureArray.getJSONObject(0);
                     JSONObject properties = firstFeature.getJSONObject("properties");
-
+                    //choosing the first element because single value is to be displayed
                     // Extract out the title, time, and tsunami values
                     String title = properties.getString("title");
                     long time = properties.getLong("time");
