@@ -18,6 +18,7 @@ package com.example.android.soonami;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -156,25 +157,37 @@ public class MainActivity extends AppCompatActivity {
             String jsonResponse = "";
             HttpURLConnection urlConnection = null;
             InputStream inputStream = null;
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setReadTimeout(10000 /* milliseconds */);
-                urlConnection.setConnectTimeout(15000 /* milliseconds */);
-                urlConnection.connect();
-                inputStream = urlConnection.getInputStream();
-                jsonResponse = readFromStream(inputStream);
-            } catch (IOException e) {
-                // TODO: Handle the exception
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (inputStream != null) {
-                    // function must handle java.io.IOException here
-                    inputStream.close();
-                }
+            if(url==null) {
+                return jsonResponse;
             }
+                try {
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.setReadTimeout(10000 /* milliseconds */);
+                    urlConnection.setConnectTimeout(15000 /* milliseconds */);
+                    urlConnection.connect();
+
+                    // making sure the conncetion is successful
+                    if(urlConnection.getResponseCode()==200) {
+                        inputStream = urlConnection.getInputStream();
+                        jsonResponse = readFromStream(inputStream);
+                    }
+                    else{
+                        Log.e(LOG_TAG,"Error Response Code" +String.valueOf(urlConnection.getResponseCode()));
+                        return jsonResponse;
+                    }
+
+                } catch (IOException e) {
+                    Log.e(LOG_TAG,"IO Exception",e);
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                    if (inputStream != null) {
+                        // function must handle java.io.IOException here
+                        inputStream.close();
+                    }
+                }
             return jsonResponse;
         }
 
@@ -185,7 +198,10 @@ public class MainActivity extends AppCompatActivity {
         private String readFromStream(InputStream inputStream) throws IOException {
             StringBuilder output = new StringBuilder();
             if (inputStream != null) {
+                // input stream reader reaads 1 bit at a time
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+                // a bufferedReader requires an inputStream reader as a parameter
+                // and it reads in large chunks of data
                 BufferedReader reader = new BufferedReader(inputStreamReader);
                 String line = reader.readLine();
                 while (line != null) {
@@ -201,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
          * about the first earthquake from the input earthquakeJSON string.
          */
         private Event extractFeatureFromJson(String earthquakeJSON) {
+            // if the json string is empty no need to go further
+            if(TextUtils.isEmpty(earthquakeJSON))
+                return null;
+
             try {
                 JSONObject baseJsonResponse = new JSONObject(earthquakeJSON);
                 JSONArray featureArray = baseJsonResponse.getJSONArray("features");
